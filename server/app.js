@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.port||3000;
 
 //use
-app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 // Initialize Firebase
 var config = {
@@ -18,13 +18,13 @@ var config = {
 };
 firebase.initializeApp(config);
 const auth = firebase.auth();
-
+const firestore = firebase.firestore();
 //routes
-app.get('/',(req,res)=>{
+app.get('/',async (req,res)=>{
     const email = 'shiv@m.com';
     const pass = "1235646465656";
     //creating new user
-    auth.createUserWithEmailAndPassword(email, pass)
+    await auth.createUserWithEmailAndPassword(email, pass)
     .then((createdUser)=>{
         //
     }).catch(function(error) {
@@ -38,7 +38,7 @@ app.get('/',(req,res)=>{
     //signing in the created user
     auth.signInWithEmailAndPassword(email, pass).
     then((user)=>{
-        res.send("signing in user "+user);
+        res.json(user);
     }).catch(function(error) {
         // Handle Errors here.
         var errorCode = error.code;
@@ -53,6 +53,30 @@ app.get('/',(req,res)=>{
       }).catch(function(error) {
         // An error happened.
     });
+})
+
+app.get("/firestore",(req,res)=>{
+    res.render("index.ejs");
+})
+
+app.post("/firestore",async (req,res)=>{
+    const docRef = firestore.doc("sample/users");
+    await docRef.set({
+        username: req.body.name,
+    }).then(res=>{
+        console.log("user saved");
+    }).catch(err=>{
+        console.log("Error: "+err);
+    })
+
+    docRef.get().then(doc=>{
+        if(doc && doc.exists){
+            const myData = doc.data();
+            res.render("show.ejs",{name: myData.username});
+        }
+    }).catch(err=>{
+        res.send(err);
+    })
 })
 
 //listening to server

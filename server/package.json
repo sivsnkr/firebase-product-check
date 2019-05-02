@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/ced17i026/firebase-product-check#readme",
   "dependencies": {
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
     "firebase": "^5.9.0",
     "firebase-tools": "^6.5.0",
