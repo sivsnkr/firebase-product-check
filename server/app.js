@@ -18,7 +18,7 @@ var config = {
 };
 firebase.initializeApp(config);
 const auth = firebase.auth();
-const firestore = firebase.firestore();
+const db = firebase.firestore();
 //routes
 app.get('/',async (req,res)=>{
     const email = 'shiv@m.com';
@@ -56,26 +56,32 @@ app.get('/',async (req,res)=>{
 })
 
 app.get("/firestore",(req,res)=>{
+    db.collection("sample").add({
+        firstname: "Swati",
+        lastname: "Shankar",
+        roll: "MIT206T"
+    }).then(docRef=>{
+        console.log(docRef.id);
+    }).catch(err=>{
+        console.log(err);
+    })
     res.render("index.ejs");
 })
 
 app.post("/firestore",async (req,res)=>{
-    const docRef = firestore.doc("sample/users");
-    await docRef.set({
-        username: req.body.name,
-    }).then(res=>{
-        console.log("user saved");
-    }).catch(err=>{
-        console.log("Error: "+err);
-    })
+    //const docRef = firestore.doc("sample/users");
+    // await docRef.set({
+    //     username: req.body.name,
+    // }).then(res=>{
+    //     console.log("user saved");
+    // }).catch(err=>{
+    //     console.log("Error: "+err);
+    // })
 
-    docRef.get().then(doc=>{
-        if(doc && doc.exists){
-            const myData = doc.data();
-            res.render("show.ejs",{name: myData.username});
-        }
-    }).catch(err=>{
-        res.send(err);
+    db.collection("sample").get().then(querySnapsot=>{
+        querySnapsot.forEach(data=>{
+            console.log(data.data());
+        })
     })
 })
 
